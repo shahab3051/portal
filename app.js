@@ -2,7 +2,7 @@
    CONFIG — Apps Script deploy karne ke baad /exec URL yahan daalein
 ===================================================================== */
 const CONFIG = {
-  API_URL: 'https://script.google.com/macros/s/AKfycbz3lCrqywsf1QiZoFS9Vab5nTu1eQIwBulAIx1YwERc4WtqWH2cVA1VclBiNw80E2-NMg/exec'
+  API_URL: 'https://script.google.com/macros/s/AKfycbz28bI9d4U5YOnhycU1sB_ieY7MeKBSmVXMrqnwlqHlxOWm6eTxA7OfPChR_dmNrAuvBA/exec'
 };
 
 /* =====================================================================
