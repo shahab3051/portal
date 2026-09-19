@@ -150,12 +150,13 @@ function enterApp() {
   document.getElementById('setEmpId').textContent = SESSION.empId || '—';
   document.getElementById('setDept').textContent = SESSION.department || '—';
 
-  const today = new Date();
   document.getElementById('dashFrom').value = todayStr();
   document.getElementById('dashTo').value = todayStr();
-  const monthAgo = new Date(); monthAgo.setDate(monthAgo.getDate() - 30);
-  document.getElementById('attFrom').value = monthAgo.toISOString().slice(0,10);
-  document.getElementById('attTo').value = todayStr();
+  // Attendance (full) page ko From/To khali chhodo — matlab "sab records dikhao"
+  // (profile tab ki tarah), taaki purani/seed data bhi by-default dikhe. User chahe
+  // to filter laga kar khud range choose kar sakta hai.
+  document.getElementById('attFrom').value = '';
+  document.getElementById('attTo').value = '';
   document.getElementById('payrollMonthFilter').value = todayStr().slice(0,7);
 
   renderCalendar();
