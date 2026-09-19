@@ -45,6 +45,18 @@ function toast(msg, type) {
 function initials(name) { return String(name || '').split(' ').filter(Boolean).slice(0, 2).map(w => w[0].toUpperCase()).join('') || '--'; }
 function esc(s) { return String(s === undefined || s === null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function money(n) { return 'Rs ' + Number(n || 0).toLocaleString(); }
+/** Backend "HH:mm:ss" (24-hour) bhejta hai — Google Sheet jaisi hi 12-hour AM/PM shakal mein dikhane ke liye */
+function formatTime12(t) {
+  if (!t) return '—';
+  const parts = String(t).split(':');
+  if (parts.length < 2) return String(t);
+  const h = Number(parts[0]);
+  if (isNaN(h)) return String(t);
+  const m = parts[1], s = parts[2] || '00';
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  let h12 = h % 12; if (h12 === 0) h12 = 12;
+  return `${h12}:${m}:${s} ${ampm}`;
+}
 function debounce(fn, ms) { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; }
 function todayStr() { return new Date().toISOString().slice(0, 10); }
 function avatarColor(name) {
@@ -267,8 +279,8 @@ async function loadDashboard() {
       document.getElementById('welcomeDate').textContent = isToday
         ? new Date().toLocaleDateString('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' })
         : `Last recorded attendance: ${rec['Date']}`;
-      document.getElementById('welcomeIn').textContent = rec['Punch In'] || '—';
-      document.getElementById('welcomeOut').textContent = rec['Punch Out'] || '—';
+      document.getElementById('welcomeIn').textContent = formatTime12(rec['Punch In']);
+      document.getElementById('welcomeOut').textContent = formatTime12(rec['Punch Out']);
       document.getElementById('welcomeHours').innerHTML = (rec['Working Hours'] || '0') + ' <span style="font-size:13px;font-weight:500;color:var(--muted);">hrs' + (isToday ? ' today' : '') + '</span>';
     } else {
       document.getElementById('welcomeDate').textContent = new Date().toLocaleDateString('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
@@ -363,7 +375,7 @@ function renderAttendanceTable(bodyId, rows, withDept) {
   body.innerHTML = rows.slice().sort((a,b) => (a['Date'] < b['Date'] ? 1 : -1)).map(r => `
     <tr><td>${esc(r['Date'])}</td><td>EMP${esc(r['EMP ID'])}</td><td>${esc(r['Employee Name'])}</td>
     ${withDept ? `<td>${esc(empByDept.get(String(r['EMP ID'])) || '—')}</td>` : ''}
-    <td>${esc(r['Punch In'] || '—')}</td><td>${esc(r['Punch Out'] || '—')}</td><td>${esc(r['Working Hours'] || '0')}</td>
+    <td>${formatTime12(r['Punch In'])}</td><td>${formatTime12(r['Punch Out'])}</td><td>${esc(r['Working Hours'] || '0')}</td>
     <td><span class="badge ${esc(r['Status'])}">${esc(r['Status'])}</span></td></tr>`).join('');
 }
 
@@ -496,7 +508,7 @@ async function openProfile(empId) {
 
   const attBody = document.getElementById('profAttendanceBody');
   attBody.innerHTML = att.length ? att.slice().sort((a,b)=>a['Date']<b['Date']?1:-1).map(r => `
-    <tr><td>${esc(r['Date'])}</td><td>${esc(r['Punch In']||'—')}</td><td>${esc(r['Punch Out']||'—')}</td><td>${esc(r['Working Hours']||'0')}</td>
+    <tr><td>${esc(r['Date'])}</td><td>${formatTime12(r['Punch In'])}</td><td>${formatTime12(r['Punch Out'])}</td><td>${esc(r['Working Hours']||'0')}</td>
     <td><span class="badge ${esc(r['Status'])}">${esc(r['Status'])}</span></td></tr>`).join('')
     : '<tr><td colspan="5" class="empty-mini">No attendance records yet</td></tr>';
 
