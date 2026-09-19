@@ -2,7 +2,7 @@
    CONFIG — Apps Script deploy karne ke baad /exec URL yahan daalein
 ===================================================================== */
 const CONFIG = {
-  API_URL: 'https://script.google.com/macros/s/AKfycbz28bI9d4U5YOnhycU1sB_ieY7MeKBSmVXMrqnwlqHlxOWm6eTxA7OfPChR_dmNrAuvBA/exec'
+  API_URL: 'https://script.google.com/macros/s/AKfycbz3lCrqywsf1QiZoFS9Vab5nTu1eQIwBulAIx1YwERc4WtqWH2cVA1VclBiNw80E2-NMg/exec'
 };
 
 /* =====================================================================
@@ -48,11 +48,13 @@ function money(n) { return 'Rs ' + Number(n || 0).toLocaleString(); }
 /** Backend "HH:mm:ss" (24-hour) bhejta hai — Google Sheet jaisi hi 12-hour AM/PM shakal mein dikhane ke liye */
 function formatTime12(t) {
   if (!t) return '—';
-  const parts = String(t).split(':');
-  if (parts.length < 2) return String(t);
+  const raw = String(t).trim();
+  if (/[AaPp][Mm]\s*$/.test(raw)) return raw; // pehle se hi "5:15:00 PM" jaisi shakal mein hai — dobara process na karo
+  const parts = raw.split(':');
+  if (parts.length < 2) return raw;
   const h = Number(parts[0]);
-  if (isNaN(h)) return String(t);
-  const m = parts[1], s = parts[2] || '00';
+  if (isNaN(h)) return raw;
+  const m = parts[1], s = (parts[2] || '00').padStart(2, '0');
   const ampm = h >= 12 ? 'PM' : 'AM';
   let h12 = h % 12; if (h12 === 0) h12 = 12;
   return `${h12}:${m}:${s} ${ampm}`;
