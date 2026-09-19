@@ -13,6 +13,7 @@
   --shadow-hover: 0 12px 28px -10px rgba(20,20,43,0.18);
 }
 * { box-sizing: border-box; }
+input, select, textarea, button { color: var(--ink); } /* dark mode mein bhi text hamesha readable rahe */
 body { margin:0; font-family:'Inter',system-ui,sans-serif; color:var(--ink); background:var(--surface); font-size:14px; -webkit-font-smoothing:antialiased; }
 h1,h2,h3,h4 { font-family:'Sora','Inter',sans-serif; margin:0; }
 .hidden { display:none !important; }
@@ -37,8 +38,8 @@ a { color: inherit; }
 .login-wrap { min-height:100vh; display:flex; align-items:center; justify-content:center; background:var(--surface); padding:24px; }
 .login-card { width:100%; max-width:420px; background:var(--paper); border:2px solid var(--yellow); border-radius:22px; padding:32px 34px 30px; box-shadow:0 30px 60px -25px rgba(20,20,43,.25), 0 0 0 6px rgba(244,180,0,.06); animation:fadeSlideUp .5s ease both; position:relative; }
 .login-card-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:26px; }
-.login-logo-pill { background:var(--paper); border-radius:12px; padding:6px 4px; }
-.login-logo { height:26px; }
+.login-logo-pill { background:var(--navy); border-radius:12px; padding:8px 16px; display:inline-flex; align-items:center; }
+.login-logo { height:24px; }
 .theme-toggle { width:42px; height:42px; border-radius:12px; border:1.5px solid var(--border); background:var(--paper); color:var(--ink); display:flex; align-items:center; justify-content:center; font-size:17px; transition:all .2s ease; overflow:hidden; }
 .theme-toggle:hover { border-color:var(--yellow); background:var(--yellow-soft); transform:rotate(-8deg); }
 .theme-toggle .theme-icon { transition:transform .3s ease, opacity .3s ease; }
@@ -91,7 +92,8 @@ a { color: inherit; }
 
 .main { flex:1; display:flex; flex-direction:column; min-width:0; }
 .topbar { height:64px; background:var(--paper); border-bottom:1px solid var(--border); display:flex; align-items:center; padding:0 24px; gap:18px; flex-shrink:0; }
-.tb-logo { height:28px; }
+.tb-logo-chip { background:var(--navy); border-radius:10px; padding:6px 12px; display:inline-flex; align-items:center; }
+.tb-logo { height:22px; }
 .tb-company { display:flex; align-items:center; gap:6px; font-size:13px; font-weight:600; color:var(--ink); background:var(--surface); padding:7px 12px; border-radius:20px; margin-left:4px; border:none; }
 .tb-company .caret { color:var(--muted); font-size:10px; }
 .topbar-right { margin-left:auto; display:flex; align-items:center; gap:16px; }
