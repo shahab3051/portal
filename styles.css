@@ -64,6 +64,8 @@ a { color: inherit; }
 .login-note { margin-top:22px; padding-top:18px; border-top:1px dashed var(--border); font-size:12px; color:var(--muted); text-align:center; }
 
 /* ---- Dark mode ---- */
+:root { color-scheme: light; }
+:root[data-theme="dark"] { color-scheme: dark; }
 :root[data-theme="dark"] {
   --paper:#1B2432; --surface:#141C28; --ink:#EDEFF4; --border:#2C3849; --muted:#8D96A8;
   --yellow-soft:#3A2E0E; --hover-row:#232E40;
@@ -72,6 +74,10 @@ a { color: inherit; }
   --badge-flat-bg:#232C3A; --skeleton-a:#212B3A; --skeleton-b:#2A3547;
   --success-soft:#173626; --danger-soft:#3A1E1C; --warn-soft:#3A2E10;
 }
+/* Native date-picker/select ka text-and-icon "color-scheme" follow karta hai, hamari
+   CSS variables ko nahi — is liye upar wali line na ho to dark mode mein date/dropdown
+   ka text dikhna band ho jata hai chahe background hum jitna bhi style kar lein. */
+input[type="date"], input[type="month"], select { color-scheme: inherit; }
 :root[data-theme="dark"] body { background:var(--surface); }
 :root[data-theme="dark"] .login-card { box-shadow:0 30px 60px -25px rgba(0,0,0,.6), 0 0 0 6px rgba(244,180,0,.08); }
 :root[data-theme="dark"] thead th { color:var(--navy); }
