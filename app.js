@@ -241,27 +241,43 @@ async function loadDashboard() {
     renderWhoIsOff(dash);
 
     const att = await apiGet('attendance', SESSION.role === 'Admin' ? {} : { empId: SESSION.empId });
+
     if (SESSION.role === 'Admin' && dash.todayFull) {
-      // Aaj ke din ke liye backend ne sab employees ka status nikal ke diya hai
-      // (jin ki attendance row nahi thi unko bhi Weekend/Absent tag kar diya) —
-      // isay asal attendance rows ke sath merge kar do taky filters/table poori tasveer dikhayein.
-      const others = att.filter(r => r['Date'] !== dash.todayFull[0]?.['Date']);
+      // Aaj ke liye data ho to wahi, warna backend ne khud sab se latest date (refDate)
+      // ka poora synthesized snapshot bhej diya hai — usay asal rows ke sath merge karo.
+      const others = att.filter(r => r['Date'] !== dash.refDate);
       CACHE.attendance = others.concat(dash.todayFull);
+      // Dashboard ka apna filter bhi usi reference date par sync kar do, warna KPI aur
+      // table ka data mismatch lagega (KPI kuch aur din ka, table khaali).
+      document.getElementById('dashFrom').value = dash.refDate;
+      document.getElementById('dashTo').value = dash.refDate;
+      document.getElementById('dashTableTitle').textContent = dash.isToday
+        ? 'Attendance — Today'
+        : `Attendance — ${dash.refDate} (sab se recent data)`;
     } else {
       CACHE.attendance = att;
     }
-    document.getElementById('welcomeDate').textContent = new Date().toLocaleDateString('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
-    const mine = CACHE.attendance.filter(r => String(r['EMP ID']) === String(SESSION.empId) && r['Date'] === todayStr());
-    if (mine.length) {
-      document.getElementById('welcomeIn').textContent = mine[0]['Punch In'] || '—';
-      document.getElementById('welcomeOut').textContent = mine[0]['Punch Out'] || '—';
-      document.getElementById('welcomeHours').innerHTML = (mine[0]['Working Hours'] || '0') + ' <span style="font-size:13px;font-weight:500;color:var(--muted);">hrs today</span>';
+
+    if (SESSION.role === 'Admin') {
+      document.getElementById('welcomeDate').textContent = new Date().toLocaleDateString('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+    } else if (dash.latestRecord) {
+      const rec = dash.latestRecord;
+      const isToday = rec['Date'] === todayStr();
+      document.getElementById('welcomeDate').textContent = isToday
+        ? new Date().toLocaleDateString('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' })
+        : `Last recorded attendance: ${rec['Date']}`;
+      document.getElementById('welcomeIn').textContent = rec['Punch In'] || '—';
+      document.getElementById('welcomeOut').textContent = rec['Punch Out'] || '—';
+      document.getElementById('welcomeHours').innerHTML = (rec['Working Hours'] || '0') + ' <span style="font-size:13px;font-weight:500;color:var(--muted);">hrs' + (isToday ? ' today' : '') + '</span>';
+    } else {
+      document.getElementById('welcomeDate').textContent = new Date().toLocaleDateString('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
     }
     applyDashboardFilters();
   } catch (e) { toast('Dashboard load failed: ' + e.message, 'error'); }
 }
 function renderKpis(d) {
   const row = document.getElementById('kpiRow');
+  const note = document.getElementById('dashRefNote');
   let cards;
   if (SESSION.role === 'Admin') {
     cards = [
@@ -271,6 +287,12 @@ function renderKpis(d) {
       { n: d.weekendToday || 0, l: 'Weekend off', cls:'', ic:'&#128197;' },
       { n: d.onLeaveToday || 0, l: 'On leave', cls:'status-Late', ic:'&#9971;' }
     ];
+    if (d.isToday === false) {
+      note.textContent = `Aaj ke liye attendance data maujood nahi — sab se recent data (${d.refDate}) dikhaya ja raha hai.`;
+      note.classList.remove('hidden');
+    } else {
+      note.classList.add('hidden');
+    }
   } else {
     cards = [
       { n: d.presentThisMonth, l: 'Present (Month)', cls:'status-Present', ic:'&#10003;' },
@@ -278,6 +300,12 @@ function renderKpis(d) {
       { n: d.weekendThisMonth || 0, l: 'Weekend (Month)', cls:'', ic:'&#128197;' },
       { n: d.myPendingRequests, l: 'My pending requests', cls:'', ic:'&#128203;' }
     ];
+    if (d.refMonth && d.refMonth !== todayStr().slice(0,7)) {
+      note.textContent = `Is mahine ka data nahi mila — sab se recent mahine (${d.refMonth}) ka summary dikhaya ja raha hai.`;
+      note.classList.remove('hidden');
+    } else {
+      note.classList.add('hidden');
+    }
   }
   row.innerHTML = cards.map((c,i) => `<div class="kpi-card ${c.cls}" style="animation-delay:${i*0.04}s"><div class="kpi-icon">${c.ic}</div><div class="kpi-number">${c.n ?? 0}</div><div class="kpi-label">${c.l}</div></div>`).join('');
 }
@@ -441,7 +469,13 @@ async function openProfile(empId) {
   document.getElementById('profRoleLine').textContent = `${emp['Designation'] || ''} · ${emp['Department'] || ''} · EMP${emp['EMP ID']}`;
   document.getElementById('profJoined').textContent = 'Joined ' + (emp['D.O.J'] || '—');
   document.getElementById('profTenure').textContent = tenureLabel(emp['D.O.J']);
-  document.getElementById('profEditBtn').onclick = () => openEmpModal(emp);
+  const editBtn = document.getElementById('profEditBtn');
+  if (SESSION.role === 'Admin') {
+    editBtn.classList.remove('hidden');
+    editBtn.onclick = () => openEmpModal(emp);
+  } else {
+    editBtn.classList.add('hidden'); // Employee khud apni profile edit nahi kar sakta — sirf Admin kar sakta hai
+  }
 
   document.getElementById('profInfoGrid').innerHTML = [
     ['Employee ID', 'EMP' + emp['EMP ID']], ['Department', emp['Department']], ['Designation', emp['Designation']],
