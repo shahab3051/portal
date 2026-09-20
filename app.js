@@ -2,7 +2,7 @@
    CONFIG — Apps Script deploy karne ke baad /exec URL yahan daalein
 ===================================================================== */
 const CONFIG = {
-  API_URL: 'https://script.google.com/macros/s/AKfycbz28bI9d4U5YOnhycU1sB_ieY7MeKBSmVXMrqnwlqHlxOWm6eTxA7OfPChR_dmNrAuvBA/exec'
+  API_URL: 'https://script.google.com/macros/s/AKfycbz3lCrqywsf1QiZoFS9Vab5nTu1eQIwBulAIx1YwERc4WtqWH2cVA1VclBiNw80E2-NMg/exec'
 };
 
 /* =====================================================================
@@ -273,9 +273,7 @@ async function loadDashboard() {
       CACHE.attendance = att;
     }
 
-    if (SESSION.role === 'Admin') {
-      document.getElementById('welcomeDate').textContent = new Date().toLocaleDateString('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
-    } else if (dash.latestRecord) {
+    if (dash.latestRecord) {
       const rec = dash.latestRecord;
       const isToday = rec['Date'] === todayStr();
       document.getElementById('welcomeDate').textContent = isToday
@@ -611,9 +609,11 @@ function filterPayroll() {
 document.getElementById('payrollSearch').addEventListener('input', debounce(filterPayroll, 200));
 document.getElementById('payrollMonthFilter').addEventListener('change', filterPayroll);
 function payslipHtml(r) {
-  return `<div class="payslip-card">
+  const uid = 'payslip_' + String(r['EMP ID']) + '_' + String(r['Month']).replace(/[^A-Za-z0-9]/g, '');
+  return `<div class="payslip-card" id="${uid}">
     <div class="payslip-head">
-      <div><div class="ps-period">Payslip · ${esc(r['Month'])}</div><h3>${esc(r['Employee Name'])}</h3></div>
+      <img class="payslip-logo" src="assets/logo.png" alt="Simply Connect">
+      <div class="ps-title-block"><div class="ps-period">Payslip · ${esc(r['Month'])}</div><h3>${esc(r['Employee Name'])}</h3></div>
       <div class="ps-net"><div class="lbl">Net pay</div><div class="amt">${money(r['Net Salary'])}</div></div>
     </div>
     <div class="payslip-body">
@@ -627,7 +627,21 @@ function payslipHtml(r) {
         <div class="ps-line"><span>Total deductions</span><span class="neg">− ${money(r['Deductions'])}</span></div>
         <div class="ps-line total"><span>Net salary</span><span>${money(r['Net Salary'])}</span></div>
       </div>
-    </div></div>`;
+    </div>
+    <div class="payslip-footer"><button class="btn-secondary" data-pdf-btn onclick="downloadPayslipPdf('${uid}','${esc(r['Employee Name'])}_${esc(r['Month'])}')">&#11015; Download PDF</button></div>
+  </div>`;
+}
+function downloadPayslipPdf(elId, filenameBase) {
+  const el = document.getElementById(elId);
+  if (!el) { toast('Payslip element nahi mila', 'error'); return; }
+  if (typeof html2pdf === 'undefined') { toast('PDF library load nahi ho saki — internet connection check karein', 'error'); return; }
+  const btn = el.querySelector('[data-pdf-btn]');
+  if (btn) btn.style.visibility = 'hidden'; // button khud PDF mein nahi aana chahiye
+  const filename = String(filenameBase || 'payslip').replace(/\s+/g, '_') + '.pdf';
+  html2pdf().set({ margin: 10, filename, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } })
+    .from(el).save()
+    .then(() => { if (btn) btn.style.visibility = ''; })
+    .catch(() => { if (btn) btn.style.visibility = ''; toast('PDF banane mein masla aaya', 'error'); });
 }
 function showPayslip(i) {
   const box = document.getElementById('payslipDetail');
