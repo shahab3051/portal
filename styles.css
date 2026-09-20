@@ -198,13 +198,16 @@ tbody tr:hover { background:var(--hover-row); }
 /* ---------- PAYROLL ---------- */
 .payroll-kpi .kpi-number { font-size:24px; }
 .payslip-card { background:var(--paper); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow-card); overflow:hidden; animation:fadeSlideUp .4s ease both; }
-.payslip-head { background:linear-gradient(120deg,var(--navy),var(--navy-light)); color:#fff; padding:24px 28px; display:flex; align-items:center; justify-content:space-between; gap:20px; flex-wrap:wrap; }
+.payslip-head { background:linear-gradient(120deg,var(--navy),var(--navy-light)); color:#fff; padding:24px 28px; display:flex; align-items:center; gap:16px; flex-wrap:wrap; }
+.payslip-logo { height:30px; background:#fff; border-radius:8px; padding:4px 8px; flex-shrink:0; }
+.payslip-head .ps-title-block { flex:1; min-width:140px; }
 .payslip-head .ps-period { font-size:12.5px; color:#AEB6C6; text-transform:uppercase; letter-spacing:.04em; margin-bottom:4px; }
 .payslip-head h3 { color:#fff; font-size:18px; }
 .payslip-head .ps-net { text-align:right; }
 .payslip-head .ps-net .amt { font-family:'Sora',sans-serif; font-size:26px; font-weight:800; color:var(--yellow); }
 .payslip-head .ps-net .lbl { font-size:11.5px; color:#AEB6C6; text-transform:uppercase; letter-spacing:.04em; }
 .payslip-body { padding:22px 28px; display:grid; grid-template-columns:1fr 1fr; gap:24px; }
+.payslip-footer { padding:0 28px 22px; display:flex; justify-content:flex-end; }
 .ps-col h4 { font-size:12.5px; text-transform:uppercase; letter-spacing:.03em; color:var(--muted); margin-bottom:10px; }
 .ps-line { display:flex; justify-content:space-between; padding:7px 0; font-size:13.5px; border-bottom:1px solid var(--border); }
 .ps-line.total { font-weight:700; border-bottom:none; padding-top:10px; }
